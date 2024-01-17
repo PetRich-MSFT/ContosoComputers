@@ -1,3 +1,6 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 using ContosoComputers.Models;
 
 using Microsoft.OpenApi.Models;
@@ -10,6 +13,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(namingPolicy: JsonNamingPolicy.CamelCase));
+});
 
 var app = builder.Build();
 
@@ -25,13 +32,26 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapGet("/warranties/{serialNum}", (string serialNum) =>
+app.MapGet("/deviceHealth/{serialNum}", (string serialNum) =>
 {
-    return Results.Ok(new WarrantyInfo
+    return Results.Ok(DeviceHealth.Create(serialNum));
+})
+.WithName("GetDeviceHealth")
+.Produces<DeviceHealth>(StatusCodes.Status200OK)
+.WithDescription("Get the health status for a device.")
+.WithOpenApi((op) =>
+{
+    var serialNumParam = op.Parameters.FirstOrDefault(p => p.Name == "serialNum");
+    if (serialNumParam != null)
     {
-        SerialNumber = serialNum,
-        WarrantyExpires = DateTime.Now.AddDays(30)
-    });
+        serialNumParam.Description = "The serial number of the device";
+    }
+    return op;
+});
+
+app.MapGet("/warranty/{serialNum}", (string serialNum) =>
+{
+    return Results.Ok(WarrantyInfo.Create(serialNum));
 })
 .WithName("GetWarrantyInfo")
 .Produces<WarrantyInfo>(StatusCodes.Status200OK)
