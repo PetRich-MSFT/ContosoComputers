@@ -17,6 +17,7 @@
             {
                 SerialNumber = serialNumber,
                 Model = random.NextFromList(DeviceInfo.ModelNames),
+                OperatingSystem = random.NextFromList(OperatingSystems),
                 Battery = random.NextEnumValue<HealthStatus>(),
                 Drive = random.NextEnumValue<HealthStatus>(),
                 MissingFirmwareUpdates = random.NextBoolean(),

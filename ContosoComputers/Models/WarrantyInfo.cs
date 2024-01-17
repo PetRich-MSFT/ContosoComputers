@@ -7,12 +7,14 @@ internal class WarrantyInfo : DeviceInfo
         int seed = serialNumber.GetHashCode();
         Random random = new(seed);
         var model = random.NextFromList(DeviceInfo.ModelNames);
+        var operatingSystem = random.NextFromList(OperatingSystems);
         var warrantyExpires = random.NextDateTimeOffset(DateTimeOffset.UtcNow.AddDays(-30), DateTimeOffset.UtcNow.AddDays(365));
         var warrantyValid = warrantyExpires > DateTime.UtcNow;
         return new WarrantyInfo
         {
             SerialNumber = serialNumber,
             Model = model,
+            OperatingSystem = operatingSystem,
             WarrantyExpires = warrantyExpires,
             WarrantyValid = warrantyValid
         };

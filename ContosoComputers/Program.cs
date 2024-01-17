@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 using ContosoComputers.Models;
 
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,6 +32,16 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.MapGet("/devices", () =>
+{
+    var devices = DeviceInfo.SerialNumbers.Select(s => DeviceInfo.Create(s)).ToList();
+    return Results.Ok(devices);
+})
+.WithName("GetAllDevices")
+.Produces<DeviceHealth>(StatusCodes.Status200OK)
+.WithDescription("Get all devices manufactured by Contoso Computers")
+.WithOpenApi();
 
 app.MapGet("/deviceHealth/{serialNum}", (string serialNum) =>
 {
@@ -62,6 +73,24 @@ app.MapGet("/warranty/{serialNum}", (string serialNum) =>
     if (serialNumParam != null)
     {
         serialNumParam.Description = "The serial number of the device";
+    }
+    return op;
+});
+
+app.MapPost("/support/{serialNum}", (string serialNum, [FromBody] string issue) => { })
+.WithName("AnswerSupportQuestion")
+.WithDescription("Answer a user's support question about their Contoso Computers device")
+.WithOpenApi((op) =>
+{
+    var serialNumParam = op.Parameters.FirstOrDefault(p => p.Name == "serialNum");
+    if (serialNumParam != null)
+    {
+        serialNumParam.Description = "The serial number of the device";
+    }
+    var issueParam = op.Parameters.FirstOrDefault(p => p.Name == "issue");
+    if (issueParam != null)
+    {
+        issueParam.Description = "A description of an issue";
     }
     return op;
 });
