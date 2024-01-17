@@ -1,0 +1,10 @@
+Name: ContosoComputers
+DisplayName: Contoso Computers
+Description:
+DescriptionsDisplay: Access information from Contoso Computers
+Icon: https://learn.microsoft.com/en-us/microsoft-365/media/contoso-overview/contoso-icon.png?view=o365-worldwide
+
+SkillGroups:
+  - Format: API
+    Settings:
+      OpenApiSpecUrl: https://4pwpsl96-7103.usw2.devtunnels.ms/swagger/v1/swagger.json
