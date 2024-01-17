@@ -1,8 +1,9 @@
-Name: ContosoComputers
-DisplayName: Contoso Computers
-Description:
-DescriptionsDisplay: Access information from Contoso Computers
-Icon: https://learn.microsoft.com/en-us/microsoft-365/media/contoso-overview/contoso-icon.png?view=o365-worldwide
+Descriptor:
+  Name: ContosoComputers
+  DisplayName: Contoso Computers
+  Description: Find information about device health and warranties for devices from Contoso Computers
+  DescriptionsDisplay: Access information from Contoso Computers
+  Icon: https://learn.microsoft.com/en-us/microsoft-365/media/contoso-overview/contoso-icon.png?view=o365-worldwide
 
 SkillGroups:
   - Format: API
