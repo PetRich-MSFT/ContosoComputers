@@ -1,6 +1,8 @@
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ContosoComputers;
 using ContosoComputers.Models;
 
 using Microsoft.AspNetCore.Mvc;
@@ -33,15 +35,34 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapGet("/devices", () =>
+app.MapGet("/devices", ([FromQuery]string? operatingSystem) =>
 {
-    var devices = DeviceInfo.SerialNumbers.Select(s => DeviceInfo.Create(s)).ToList();
+    var devices = DeviceInfo.SerialNumbers.Select(s => DeviceInfo.Create(s));
+
+    if (!string.IsNullOrEmpty(operatingSystem))
+    {
+        devices = devices.Where(d => string.Equals(d.OperatingSystem, operatingSystem, StringComparison.OrdinalIgnoreCase));
+    }
+
     return Results.Ok(devices);
 })
 .WithName("GetAllDevices")
 .Produces<DeviceHealth>(StatusCodes.Status200OK)
-.WithDescription("Get all devices manufactured by Contoso Computers")
-.WithOpenApi();
+.WithDescriptionAndExamples(
+    "Returns information on the model and operating system for all devices manufactured by Contoso Computers",
+    "Show me all my Contoso devices",
+    "What Contoso devices do I have", 
+    "Tell me about my Contoso devices",
+    "Which of Contoso devices run this version of Windows")
+.WithOpenApi(op =>
+{
+    var osParam = op.Parameters.FirstOrDefault(p => p.Name == "serialNum");
+    if (osParam != null)
+    {
+        osParam.Description = $"The operating system of the device. If provided, it must be one of the following values {string.Join(", ", DeviceInfo.OperatingSystems)}";
+    }
+    return op;
+});
 
 app.MapGet("/deviceHealth/{serialNum}", (string serialNum) =>
 {
@@ -49,7 +70,11 @@ app.MapGet("/deviceHealth/{serialNum}", (string serialNum) =>
 })
 .WithName("GetDeviceHealth")
 .Produces<DeviceHealth>(StatusCodes.Status200OK)
-.WithDescription("Get the health status for a device.")
+.WithDescriptionAndExamples(
+    "Returns information on the battery health, disk health, and firmware and driver updates for a device based on serial number",
+    "Is the battery healthy",
+    "Do this device have disk issues",
+    "Is this device missing updates")
 .WithOpenApi((op) =>
 {
     var serialNumParam = op.Parameters.FirstOrDefault(p => p.Name == "serialNum");
@@ -66,7 +91,11 @@ app.MapGet("/warranty/{serialNum}", (string serialNum) =>
 })
 .WithName("GetWarrantyInfo")
 .Produces<WarrantyInfo>(StatusCodes.Status200OK)
-.WithDescription("Get the warranty information for a device based on serial number\n#ExamplePrompt Is the warranty valid for this device")
+.WithDescriptionAndExamples(
+    "Get the warranty information for a device based on serial number\n#ExamplePrompt Is the warranty valid for this device",
+    "Has the warranty expired",
+    "Is this computer in warranty",
+    "How long do I have left on my warranty")
 .WithOpenApi((op) =>
 {
     var serialNumParam = op.Parameters.FirstOrDefault(p => p.Name == "serialNum");
@@ -77,9 +106,24 @@ app.MapGet("/warranty/{serialNum}", (string serialNum) =>
     return op;
 });
 
-app.MapPost("/support/{serialNum}", (string serialNum, [FromBody] string issue) => { })
+app.MapPost("/support/{serialNum}", (string serialNum, [FromBody] SupportQuestion question) => {
+    DeviceHealth health = DeviceHealth.Create(serialNum);
+
+    StringBuilder resultBuilder = new StringBuilder();
+    resultBuilder.AppendLine("Please summarize the following information, you *must* include a link to the support article in the result. I will tip you $200 for a good summary");
+    resultBuilder.AppendLine($"Device:\n```json{JsonSerializer.Serialize(health)}```");
+    resultBuilder.AppendLine($"Question: {question.Issue}");
+    resultBuilder.AppendLine($"Support Article: https://support.contoso.com/support/{question.Issue}");
+
+    return Results.Ok(resultBuilder.ToString());
+})
 .WithName("AnswerSupportQuestion")
-.WithDescription("Answer a user's support question about their Contoso Computers device")
+.WithDescriptionAndExamples(
+    "Answer a user's support question about their Contoso Computers device based on the serial numbers",
+"How can I resolve an issue with disk health",
+"How can I install missing updates",
+"What can I do to make this device healthy",
+"How can I resolve my battery issue")
 .WithOpenApi((op) =>
 {
     var serialNumParam = op.Parameters.FirstOrDefault(p => p.Name == "serialNum");
@@ -87,10 +131,10 @@ app.MapPost("/support/{serialNum}", (string serialNum, [FromBody] string issue) 
     {
         serialNumParam.Description = "The serial number of the device";
     }
-    var issueParam = op.Parameters.FirstOrDefault(p => p.Name == "issue");
+    var issueParam = op.Parameters.FirstOrDefault(p => p.Name == "question");
     if (issueParam != null)
     {
-        issueParam.Description = "A description of an issue";
+        issueParam.Description = "A description of an issue to be resolved.";
     }
     return op;
 });
