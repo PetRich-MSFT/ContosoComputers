@@ -113,7 +113,7 @@ app.MapPost("/support/{serialNum}", (string serialNum, [FromBody] SupportQuestio
     resultBuilder.AppendLine("Please summarize the following information, you *must* include a link to the support article in the result. I will tip you $200 for a good summary");
     resultBuilder.AppendLine($"Device:\n```json{JsonSerializer.Serialize(health)}```");
     resultBuilder.AppendLine($"Question: {question.Issue}");
-    resultBuilder.AppendLine($"Support Article: https://support.contoso.com/support/{question.Issue}");
+    resultBuilder.AppendLine($"Support Article: https://support.contoso.com/support/{question.Issue.Replace(' ', '_')}");
 
     return Results.Ok(resultBuilder.ToString());
 })
