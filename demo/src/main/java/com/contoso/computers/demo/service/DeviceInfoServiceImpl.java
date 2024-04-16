@@ -1,6 +1,8 @@
 package com.contoso.computers.demo.service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,14 +22,16 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
 
     @Override
     public DeviceInfo getDeviceInfo(String serialNumber) {
-        // TODO Auto-generated method stub
-        return new DeviceInfo(serialNumber, serialNumber, serialNumber);
+        return this.deviceInfoRepository.findBySerialNumber(serialNumber);
     }
 
     @Override
-    public List<DeviceInfo> getAllDevices() {
-        // TODO Auto-generated method stub
-        return null;
+    public List<DeviceInfo> getAllDevices(String operatingSystem) {
+        return this.deviceInfoRepository
+            .findAll()
+            .stream()
+            .filter(deviceInfo -> operatingSystem == null || operatingSystem.equalsIgnoreCase(deviceInfo.getOperatingSystem()))
+            .collect(Collectors.toList());
     }
     
 }
