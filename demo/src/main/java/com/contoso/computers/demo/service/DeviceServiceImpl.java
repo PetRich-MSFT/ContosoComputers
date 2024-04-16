@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.contoso.computers.demo.model.DeviceHealth;
 import com.contoso.computers.demo.model.DeviceInfo;
+import com.contoso.computers.demo.model.WarrantyInfo;
 import com.contoso.computers.demo.repository.DeviceRepository;
 
 @Service
@@ -37,6 +38,11 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public DeviceHealth getDeviceHealth(String serialNumber) {
         return this.deviceRepository.getHealthBySerialNumber(serialNumber);
+    }
+
+    @Override
+    public WarrantyInfo getWarrantyInfo(String serialNumber) {
+        return this.deviceRepository.getWarrantyInfoBySerialNumber(serialNumber);
     }
     
 }
