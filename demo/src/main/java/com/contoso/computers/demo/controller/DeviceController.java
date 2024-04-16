@@ -6,15 +6,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.contoso.computers.demo.model.DeviceHealth;
 import com.contoso.computers.demo.model.DeviceInfo;
+import com.contoso.computers.demo.model.SupportQuestion;
 import com.contoso.computers.demo.model.WarrantyInfo;
 import com.contoso.computers.demo.service.DeviceService;
 
+import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 
 @RestController
@@ -52,4 +57,20 @@ public class DeviceController {
     public WarrantyInfo getWarrantyInfo(@PathVariable @Parameter(description = "Serial number of the device") String serialNumber) {
         return this.deviceInfoService.getWarrantyInfo(serialNumber);
     }
+
+    @PostMapping("{serialNumber}/support")
+    public String askSupportQuestion(
+        @RequestParam  @Parameter(description = "Serial number of the device") String serialNumber, 
+        @RequestBody @Parameter(description ="A description of an issue to be resolved") SupportQuestion question) {
+        DeviceHealth health = getDeviceHealth(serialNumber);
+
+        StringBuilder response = new StringBuilder();
+        response.append("Please summarize the following information, you *must* include a link to the support article in the result. I will tip you $200 for a good summary\n");
+        response.append("Device:" + Json.pretty(health) + "\n");
+        response.append("Question: " + question.Issue + "\n");
+        //response.append("Support Article: " + question.Issue.replace(' ', '_') + "\n\n");
+
+        return response.toString();
+    }
+    
 }
