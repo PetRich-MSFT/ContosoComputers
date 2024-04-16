@@ -6,10 +6,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.contoso.computers.demo.model.DeviceHealth;
 import com.contoso.computers.demo.model.DeviceInfo;
 
 @Service
-public class DeviceInfoRepositoryImpl implements DeviceInfoRepository{
+public class DeviceRepositoryImpl implements DeviceRepository{
 
     @Override
     public DeviceInfo findBySerialNumber(String serialNumber) {
@@ -19,6 +20,11 @@ public class DeviceInfoRepositoryImpl implements DeviceInfoRepository{
     @Override
     public List<DeviceInfo> findAll() {
         return Arrays.asList(DeviceInfo.SERIAL_NUMBERS).stream().map(serialNumber -> DeviceInfo.create(serialNumber)).collect(Collectors.toList());
+    }
+
+    @Override
+    public DeviceHealth getHealthBySerialNumber(String serialNumber) {
+        return DeviceHealth.create(serialNumber);
     }
 
 }

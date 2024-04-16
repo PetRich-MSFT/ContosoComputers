@@ -4,8 +4,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.contoso.computers.demo.model.DeviceHealth;
 import com.contoso.computers.demo.model.DeviceInfo;
-import com.contoso.computers.demo.service.DeviceInfoService;
+import com.contoso.computers.demo.service.DeviceService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,10 +20,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequestMapping("/api/devices")
 public class DeviceInfoController {
 
-    private final DeviceInfoService deviceInfoService;
+    private final DeviceService deviceInfoService;
 
     @Autowired
-    public DeviceInfoController(DeviceInfoService deviceInfoService) {
+    public DeviceInfoController(DeviceService deviceInfoService) {
         this.deviceInfoService = deviceInfoService;
     }
 
@@ -39,4 +40,9 @@ public class DeviceInfoController {
         return this.deviceInfoService.getDeviceInfo(serialNumber);
     }
 
+    @GetMapping("{serialNumber}/deviceHealth")
+    @Operation(operationId = "GetDeviceHealth", description = "Returns information on the battery health, disk health, and firmware and driver updates for a device based on serial number\n#ExamplePrompt Is the battery healthy\n#ExamplePrompt Do this device have disk issues\n#ExamplePrompt Is this device missing updates")
+    public DeviceHealth getDeviceHealth(@PathVariable @Parameter(description = "Serial number of the device") String serialNumber) {
+        return this.deviceInfoService.getDeviceHealth(serialNumber);
+    }
 }

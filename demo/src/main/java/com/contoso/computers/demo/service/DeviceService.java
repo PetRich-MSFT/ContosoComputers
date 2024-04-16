@@ -1,11 +1,11 @@
 package com.contoso.computers.demo.service;
 
 import java.util.List;
-import java.util.Optional;
-
+import com.contoso.computers.demo.model.DeviceHealth;
 import com.contoso.computers.demo.model.DeviceInfo;
 
-public interface DeviceInfoService {
+public interface DeviceService {
     DeviceInfo getDeviceInfo(String serialNumber);
     List<DeviceInfo> getAllDevices(String operatingSystem);
+    DeviceHealth getDeviceHealth(String serialNumber);
 }

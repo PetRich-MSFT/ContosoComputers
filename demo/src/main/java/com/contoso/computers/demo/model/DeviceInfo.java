@@ -7,6 +7,8 @@ import javax.persistence.Id;
 
 import org.springframework.context.annotation.Description;
 
+import com.contoso.computers.demo.util.RandomUtils;
+
 @Entity
 public class DeviceInfo {
     public static final String[] MODEL_NAMES = {
@@ -61,8 +63,8 @@ public class DeviceInfo {
         Random random = new Random(seed);
         return new DeviceInfo(
             serialNumber, 
-            MODEL_NAMES[random.nextInt(MODEL_NAMES.length)], 
-            OPERATING_SYSTEMS[random.nextInt(OPERATING_SYSTEMS.length)]);
+            RandomUtils.randomFromArray(MODEL_NAMES, random),
+            RandomUtils.randomFromArray(OPERATING_SYSTEMS, random));
     }
 
     public DeviceInfo(String serialNumber, String model, String operatingSystem) {
