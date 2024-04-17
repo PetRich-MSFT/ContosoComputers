@@ -2,6 +2,7 @@ package com.contoso.computers.demo.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.contoso.computers.demo.model.DeviceHealth;
@@ -13,13 +14,16 @@ import com.contoso.computers.demo.service.DeviceService;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
@@ -58,17 +62,17 @@ public class DeviceController {
         return this.deviceInfoService.getWarrantyInfo(serialNumber);
     }
 
-    @PostMapping("{serialNumber}/support")
+    @PostMapping(value = "{serialNumber}/support")
     public String askSupportQuestion(
-        @RequestParam  @Parameter(description = "Serial number of the device") String serialNumber, 
-        @RequestBody @Parameter(description ="A description of an issue to be resolved") SupportQuestion question) {
-        DeviceHealth health = getDeviceHealth(serialNumber);
+        @PathVariable @Parameter(description = "Serial number of the device") String serialNumber,
+        @RequestBody(required = true) @Parameter(description ="A description of an issue to be resolved") SupportQuestion question) {
+        DeviceHealth health = getDeviceHealth("serialNumber");
 
         StringBuilder response = new StringBuilder();
-        response.append("Please summarize the following information, you *must* include a link to the support article in the result. I will tip you $200 for a good summary\n");
+        response.append("Please summarize the following information, you *must* include a link to the support article in the result.\n");
         response.append("Device:" + Json.pretty(health) + "\n");
-        response.append("Question: " + question.Issue + "\n");
-        //response.append("Support Article: " + question.Issue.replace(' ', '_') + "\n\n");
+        response.append("Question: " + question.getIssue() + "\n");
+        response.append("Support Article: https://support.contoso.com/support/" + question.getIssue().replace(' ', '_') + "\n\n");
 
         return response.toString();
     }
